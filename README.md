@@ -9,7 +9,7 @@ This guide explains the difference between **partition-wise sorting** (`sortWith
 
 ---
 
-## 🔧 Setup
+##  Setup
 
 Assume you have a CSV file `events.csv`:
 
@@ -23,7 +23,7 @@ u4,d4,duck.com,b.com,/contact,2024-06-02 11:05:00
 
 ---
 
-## 🛠 Step-by-step PySpark Example
+##  Step-by-step PySpark Example
 
 ```python
 from pyspark.sql import SparkSession
@@ -42,7 +42,7 @@ df = df.withColumn("event_date", date_trunc("day", col("event_time_ts")))
 
 ---
 
-## 📌 1. Partition-wise Sort (Local Sort)
+##  1. Partition-wise Sort (Local Sort)
 
 ```python
 df_repartitioned = df.repartition(10, "event_date")
@@ -50,28 +50,28 @@ df_local_sorted = df_repartitioned.sortWithinPartitions("event_date", "host")
 df_local_sorted.explain()
 ```
 
-✅ **Behavior**:
+ **Behavior**:
 - Hash partitions by `event_date`
 - Sorts **within** each partition
 - Faster, but **not globally ordered**
 
 ---
 
-## 📌 2. Global Sort (Strict Sort Across Partitions)
+##  2. Global Sort (Strict Sort Across Partitions)
 
 ```python
 df_global_sorted = df.orderBy("event_date", "host")
 df_global_sorted.explain()
 ```
 
-✅ **Behavior**:
+ **Behavior**:
 - Spark shuffles data using **range partitioning**
 - Ensures **globally sorted** output
 - Slower, but necessary for full ordering or operations like `collect()` or `limit()`
 
 ---
 
-## 📊 Compare the Plans
+##  Compare the Plans
 
 ```python
 df_local_sorted.explain(True)     # shows hash partition + local sort
@@ -80,7 +80,7 @@ df_global_sorted.explain(True)    # shows range partition + global sort
 
 ---
 
-## 🔍 Summary Table
+##  Summary Table
 
 | Feature             | `sortWithinPartitions()`       | `orderBy()` (Global Sort)       |
 |---------------------|-------------------------------|---------------------------------|
@@ -92,7 +92,7 @@ df_global_sorted.explain(True)    # shows range partition + global sort
 
 ---
 
-## ✅ When to Use What?
+##  When to Use What?
 
 - Use `sortWithinPartitions()` when:
   - Writing to partitioned files
